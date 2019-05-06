@@ -1,12 +1,12 @@
 package io.namjune.basicrestapi.events;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -23,7 +23,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @RunWith(SpringRunner.class)
-@WebMvcTest
+@SpringBootTest
+@AutoConfigureMockMvc
 public class EventControllerTests {
 
     @Autowired
@@ -32,13 +33,10 @@ public class EventControllerTests {
     @Autowired
     ObjectMapper objectMapper;
 
-    // Controller 테스트에서 필요한 객체(Repository) Mocking
-    @MockBean
-    EventRepository eventRepository;
-
     @Test
     public void 이벤트_생성_201() throws Exception {
         Event event = Event.builder()
+            .id(100L)
             .name("REST API with Spring")
             .description("REST API Basic")
             .beginEnrollmentDateTime(LocalDateTime.of(2019, 5, 6, 17, 0, 0))
@@ -49,11 +47,10 @@ public class EventControllerTests {
             .maxPrice(100)
             .limitOfEnrollment(100)
             .location("서울대입구")
+            .free(true)
+            .offline(false)
+            .eventStatus(EventStatus.PUBLISHED)
             .build();
-
-        // Mockito로 Mock 객체(EventRepository) stubbing
-        event.setId(1L);
-        Mockito.when(eventRepository.save(event)).thenReturn(event);
 
         mockMvc.perform(
             post("/api/events")
@@ -65,6 +62,10 @@ public class EventControllerTests {
             .andExpect(jsonPath("id").exists())
             .andExpect(header().exists(HttpHeaders.LOCATION))
             .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_UTF8_VALUE))
+            //임의로 아이디를 세팅할 수 없음. 다른 값들도 마찬가지.
+            .andExpect(jsonPath("id").value(Matchers.not(100L)))
+            .andExpect(jsonPath("free").value(Matchers.not(true)))
+            .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
         ;
     }
 }
