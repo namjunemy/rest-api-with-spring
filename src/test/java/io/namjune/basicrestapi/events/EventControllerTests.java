@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.namjune.basicrestapi.common.TestDescription;
 import java.time.LocalDateTime;
 import org.hamcrest.Matchers;
 import org.junit.Test;
@@ -33,6 +34,7 @@ public class EventControllerTests {
     ObjectMapper objectMapper;
 
     @Test
+    @TestDescription("정상적으로 이벤트를 생성하는 테스트")
     public void 이벤트_생성_201() throws Exception {
         EventRequestDto event = EventRequestDto.builder()
             .name("REST API with Spring")
@@ -65,6 +67,7 @@ public class EventControllerTests {
     }
 
     @Test
+    @TestDescription("입력 받을 수 없는 값을 사용하는 경우 BadRequest 발생하는 테스트")
     public void 이벤트_생성_BadRequest() throws Exception {
         Event event = Event.builder()
             .id(100L)
@@ -97,6 +100,7 @@ public class EventControllerTests {
     }
 
     @Test
+    @TestDescription("입력 값이 비어있는 경우에 에러가 발생하는 테스트")
     public void 이벤트_생성_BadRequest_RequestDTO_이외의필드() throws Exception {
         EventRequestDto eventRequestDto = EventRequestDto.builder().build();
 
@@ -109,6 +113,7 @@ public class EventControllerTests {
     }
 
     @Test
+    @TestDescription("입력 값이 잘못된 경우에 에러가 발생하는 테스트")
     public void 이벤트_생성_BadRequest_데이터값이_이상할_때_커스텀_Validator로_처리() throws Exception {
         EventRequestDto eventRequestDto = EventRequestDto.builder()
             .name("REST API with Spring")
