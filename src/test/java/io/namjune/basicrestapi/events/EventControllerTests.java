@@ -6,7 +6,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
 import org.hamcrest.Matchers;
@@ -100,6 +99,29 @@ public class EventControllerTests {
     @Test
     public void 이벤트_생성_BadRequest_RequestDTO_이외의필드() throws Exception {
         EventRequestDto eventRequestDto = EventRequestDto.builder().build();
+
+        this.mockMvc.perform(
+            post("/api/events")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaTypes.HAL_JSON)
+                .content(this.objectMapper.writeValueAsString(eventRequestDto)))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void 이벤트_생성_BadRequest_데이터값이_이상할_때_커스텀_Validator로_처리() throws Exception {
+        EventRequestDto eventRequestDto = EventRequestDto.builder()
+            .name("REST API with Spring")
+            .description("REST API Basic")
+            .beginEnrollmentDateTime(LocalDateTime.of(2019, 5, 9, 17, 0, 0))
+            .closeEnrollmentDateTime(LocalDateTime.of(2019, 5, 6, 17, 0, 0))
+            .beginEventDateTime(LocalDateTime.of(2019, 5, 10, 17, 0, 0))
+            .endEventDateTime(LocalDateTime.of(2019, 5, 13, 17, 0, 0))
+            .basePrice(10000)
+            .maxPrice(100)
+            .limitOfEnrollment(100)
+            .location("서울대입구")
+            .build();
 
         this.mockMvc.perform(
             post("/api/events")
