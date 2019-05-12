@@ -1,14 +1,7 @@
 package io.namjune.basicrestapi.events;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.namjune.basicrestapi.common.TestDescription;
-import java.time.LocalDateTime;
 import org.hamcrest.Matchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,6 +13,14 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.LocalDateTime;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @RunWith(SpringRunner.class)
@@ -133,6 +134,16 @@ public class EventControllerTests {
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaTypes.HAL_JSON)
                 .content(this.objectMapper.writeValueAsString(eventRequestDto)))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isBadRequest())
+            // 응답 본문으로 Bad Request 정보를 받기 위해서 스프링에서 제공하는 Errors 객체를 그냥 넘기면
+            // Errors가 넘어 올 때, Error를 serialization 해줄 수 있는 Serializer가
+            // ObjectMapper가 등록 되어있지 않기 때문에 beanSerialize 에러 발생
+            // 처리하기 위해 @JsonComponent ErrorSerializer ObjectMapper에 등록해서 변환 처리
+            // 이렇게 처리하면 REST API를 사용하는 클라이언트에서 응답 본문만 보고 핸들링 가능
+            .andDo(print())
+            .andExpect(jsonPath("$[0].objectName").exists())
+            .andExpect(jsonPath("$[0].defaultMessage").exists())
+            .andExpect(jsonPath("$[0].code").exists())
+        ;
     }
 }
