@@ -40,4 +40,19 @@ public class Event {
     private boolean free;
     @Enumerated(EnumType.STRING)
     private EventStatus eventStatus = EventStatus.DRAFT;
+
+    public void updateDynamicField() {
+        this.updateFree();
+        this.updateOffline();
+    }
+
+    public void updateFree() {
+        this.free = this.basePrice == 0 && this.maxPrice == 0;
+    }
+
+    public void updateOffline() {
+        if (this.location != null && !this.location.trim().isEmpty()) {
+            this.offline = true;
+        }
+    }
 }

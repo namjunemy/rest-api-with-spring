@@ -60,9 +60,8 @@ public class EventControllerTests {
             .andExpect(jsonPath("id").exists())
             .andExpect(header().exists(HttpHeaders.LOCATION))
             .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_UTF8_VALUE))
-            //임의로 아이디를 세팅할 수 없음. 다른 값들도 마찬가지.
-            .andExpect(jsonPath("id").value(Matchers.not(100L)))
-            .andExpect(jsonPath("free").value(Matchers.not(true)))
+            .andExpect(jsonPath("free").value(false))
+            .andExpect(jsonPath("offline").value(true))
             .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
         ;
     }
