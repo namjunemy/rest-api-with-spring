@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
@@ -24,7 +25,8 @@ public class EventController {
     private final EventValidator eventValidator;
 
     @PostMapping
-    public ResponseEntity createEvent(@RequestBody @Valid EventRequestDto eventRequestDto, Errors errors) {
+    public ResponseEntity createEvent(@RequestBody @Valid EventRequestDto eventRequestDto,
+        Errors errors) {
         if (errors.hasErrors()) {
             return ResponseEntity.badRequest().body(errors);
         }
@@ -37,7 +39,16 @@ public class EventController {
         Event event = modelMapper.map(eventRequestDto, Event.class);
         event.updateDynamicField();
         Event savedEvent = this.eventRepository.save(event);
-        URI createdUri = linkTo(EventController.class).slash(savedEvent.getId()).toUri();
-        return ResponseEntity.created(createdUri).body(event);
+
+        //HATEOAS link 추가
+        ControllerLinkBuilder selfLinkBuilder = linkTo(EventController.class).slash(savedEvent.getId());
+        URI createdUri = selfLinkBuilder.toUri();
+
+        EventResource eventResource = new EventResource(event);
+        //self link는 매번 API 마다 추가 해야하므로 EventResource에서 공통 처리
+        eventResource.add(linkTo(EventController.class).withRel("query-events"));
+        eventResource.add(selfLinkBuilder.withRel("update-event"));
+
+        return ResponseEntity.created(createdUri).body(eventResource);
     }
 }
