@@ -1,6 +1,12 @@
 package io.namjune.basicrestapi.events;
 
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -71,8 +77,33 @@ public class EventControllerTests {
             .andExpect(jsonPath("_links.self").exists())
             .andExpect(jsonPath("_links.query-events").exists())
             .andExpect(jsonPath("_links.update-event").exists())
-            //REST Docs
-            .andDo(document("create-event"))
+            //REST Docs - 기본(요청 본문, 응답 본문 문서화)
+            .andDo(document("create-event",
+                //링크 문서화 - links snippet 추가
+                links(
+                    linkWithRel("self").description("link to self"),
+                    linkWithRel("query-events").description("link to query events"),
+                    linkWithRel("update-event").description("link to update an existing")
+                ),
+                //요청 헤더 문서화
+                requestHeaders(
+                    headerWithName(HttpHeaders.ACCEPT).description("accept header"),
+                    headerWithName(HttpHeaders.CONTENT_TYPE).description("content type")
+                ),
+                //요청 필드 문서화
+                requestFields(
+                    fieldWithPath("name").description("Name of new event"),
+                    fieldWithPath("description").description("Description of new event"),
+                    fieldWithPath("beginEnrollmentDateTime").description("date time of begin of new event"),
+                    fieldWithPath("closeEnrollmentDateTime").description("date time of close of new event"),
+                    fieldWithPath("beginEventDateTime").description("date time of begin of new event"),
+                    fieldWithPath("endEventDateTime").description("date time of end of new event"),
+                    fieldWithPath("location").description("Location of new event"),
+                    fieldWithPath("basePrice").description("Base Price of new event"),
+                    fieldWithPath("maxPrice").description("Max Price of new event"),
+                    fieldWithPath("limitOfEnrollment").description("Limit of enrollment")
+                )
+            ))
         ;
     }
 
