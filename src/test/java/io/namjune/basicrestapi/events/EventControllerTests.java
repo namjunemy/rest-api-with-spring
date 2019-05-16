@@ -2,11 +2,14 @@ package io.namjune.basicrestapi.events;
 
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
+import static org.springframework.restdocs.headers.HeaderDocumentation.responseHeaders;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.relaxedResponseFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -87,8 +90,8 @@ public class EventControllerTests {
                 ),
                 //요청 헤더 문서화
                 requestHeaders(
-                    headerWithName(HttpHeaders.ACCEPT).description("accept header"),
-                    headerWithName(HttpHeaders.CONTENT_TYPE).description("content type")
+                    headerWithName(HttpHeaders.ACCEPT).description("Accept header"),
+                    headerWithName(HttpHeaders.CONTENT_TYPE).description("Content type")
                 ),
                 //요청 필드 문서화
                 requestFields(
@@ -102,6 +105,36 @@ public class EventControllerTests {
                     fieldWithPath("basePrice").description("Base Price of new event"),
                     fieldWithPath("maxPrice").description("Max Price of new event"),
                     fieldWithPath("limitOfEnrollment").description("Limit of enrollment")
+                ),
+                //응답 헤더 문서화
+                responseHeaders(
+                    headerWithName(HttpHeaders.LOCATION).description("Location header"),
+                    headerWithName(HttpHeaders.CONTENT_TYPE).description("Content type")
+                ),
+                //응답 필드 문서화
+                //links까지 응답 필드로 보기때문에 releaxed 키워드를 붙이지 않으면 에러 발생
+                // relaxed prefix의 장점 - 일부분만 테스트 할 수 있다.
+                //                  단점 - 정확한 문서를 생성하지 못한다.
+                // 그냥 링크 필드를 추가하는 방법도 있다.(권장)
+                //relaxedResponseFields(
+                responseFields(
+                    fieldWithPath("id").description("Identifier of new event"),
+                    fieldWithPath("name").description("Name of new event"),
+                    fieldWithPath("description").description("Description of new event"),
+                    fieldWithPath("beginEnrollmentDateTime").description("date time of begin of new event"),
+                    fieldWithPath("closeEnrollmentDateTime").description("date time of close of new event"),
+                    fieldWithPath("beginEventDateTime").description("date time of begin of new event"),
+                    fieldWithPath("endEventDateTime").description("date time of end of new event"),
+                    fieldWithPath("location").description("Location of new event"),
+                    fieldWithPath("basePrice").description("Base Price of new event"),
+                    fieldWithPath("maxPrice").description("Max Price of new event"),
+                    fieldWithPath("limitOfEnrollment").description("Limit of enrollment"),
+                    fieldWithPath("free").description("Event is free or not"),
+                    fieldWithPath("offline").description("Event is offline meeting or not"),
+                    fieldWithPath("eventStatus").description("Event status"),
+                    fieldWithPath("_links.self.href").description("link to self"),
+                    fieldWithPath("_links.query-events.href").description("link to query events"),
+                    fieldWithPath("_links.update-event.href").description("link to update an existing")
                 )
             ))
         ;
