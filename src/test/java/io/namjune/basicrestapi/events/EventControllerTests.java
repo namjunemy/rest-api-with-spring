@@ -1,25 +1,8 @@
 package io.namjune.basicrestapi.events;
 
-import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
-import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
-import static org.springframework.restdocs.headers.HeaderDocumentation.responseHeaders;
-import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
-import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
-import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.relaxedResponseFields;
-import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.namjune.basicrestapi.common.RestDocsConfiguration;
 import io.namjune.basicrestapi.common.TestDescription;
-import java.time.LocalDateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +15,23 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.time.LocalDateTime;
+
+import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
+import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
+import static org.springframework.restdocs.headers.HeaderDocumentation.responseHeaders;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.linkWithRel;
+import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
+import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @RunWith(SpringRunner.class)
@@ -76,17 +76,20 @@ public class EventControllerTests {
             .andExpect(jsonPath("free").value(false))
             .andExpect(jsonPath("offline").value(true))
             .andExpect(jsonPath("eventStatus").value(EventStatus.DRAFT.name()))
-            //HATEOAS 만족 시키는지
-            .andExpect(jsonPath("_links.self").exists())
-            .andExpect(jsonPath("_links.query-events").exists())
-            .andExpect(jsonPath("_links.update-event").exists())
+
+            //HATEOAS 만족 시키는지 -> document에서 테스트를 했기 때문에 HATEOAS 테스트는 하지 않아도 된다.
+//            .andExpect(jsonPath("_links.self").exists())
+//            .andExpect(jsonPath("_links.query-events").exists())
+//            .andExpect(jsonPath("_links.update-event").exists())
+
             //REST Docs - 기본(요청 본문, 응답 본문 문서화)
             .andDo(document("create-event",
                 //링크 문서화 - links snippet 추가
                 links(
                     linkWithRel("self").description("link to self"),
                     linkWithRel("query-events").description("link to query events"),
-                    linkWithRel("update-event").description("link to update an existing")
+                    linkWithRel("update-event").description("link to update an existing"),
+                    linkWithRel("profile").description("link to profile an existing")
                 ),
                 //요청 헤더 문서화
                 requestHeaders(
@@ -134,7 +137,8 @@ public class EventControllerTests {
                     fieldWithPath("eventStatus").description("Event status"),
                     fieldWithPath("_links.self.href").description("link to self"),
                     fieldWithPath("_links.query-events.href").description("link to query events"),
-                    fieldWithPath("_links.update-event.href").description("link to update an existing")
+                    fieldWithPath("_links.update-event.href").description("link to update an existing"),
+                    fieldWithPath("_links.profile.href").description("link to profile an existing")
                 )
             ))
         ;
