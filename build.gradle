@@ -1,7 +1,7 @@
 plugins {
-	id 'org.asciidoctor.convert' version '1.5.3'
-	id 'org.springframework.boot' version '2.1.4.RELEASE'
-	id 'java'
+  id 'org.asciidoctor.convert' version '1.5.3'
+  id 'org.springframework.boot' version '2.1.4.RELEASE'
+  id 'java'
 }
 
 apply plugin: 'io.spring.dependency-management'
@@ -11,46 +11,50 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '1.8'
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+  compileOnly {
+    extendsFrom annotationProcessor
+  }
 }
 
 repositories {
-	mavenCentral()
-}
-
-ext {
-	set('snippetsDir', file('build/generated-snippets'))
-}
-
-test {
-	outputs.dir snippetsDir
-}
-
-asciidoctor {
-	inputs.dir snippetsDir
-	dependsOn test
-}
-
-bootJar {
-	dependsOn asciidoctor
-	from ("${asciidoctor.outputDir}/html5") {
-		into 'static/docs'
-	}
+  mavenCentral()
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-hateoas'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.h2database:h2'
-	runtimeOnly 'mysql:mysql-connector-java'
-	compile group: 'org.modelmapper', name: 'modelmapper', version: '2.3.1'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor:2.0.3.RELEASE'
-	testCompile 'org.springframework.restdocs:spring-restdocs-mockmvc:2.0.3.RELEASE'
-	testCompile group: 'pl.pragmatists', name: 'JUnitParams', version: '1.1.1'
+  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+  implementation 'org.springframework.boot:spring-boot-starter-hateoas'
+  implementation 'org.springframework.boot:spring-boot-starter-web'
+  compileOnly 'org.projectlombok:lombok'
+  runtimeOnly 'com.h2database:h2'
+  runtimeOnly 'mysql:mysql-connector-java'
+  compile group: 'org.modelmapper', name: 'modelmapper', version: '2.3.1'
+  annotationProcessor 'org.projectlombok:lombok'
+  testImplementation 'org.springframework.boot:spring-boot-starter-test'
+  testCompile 'org.springframework.restdocs:spring-restdocs-mockmvc:2.0.3.RELEASE'
+  asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor:2.0.3.RELEASE'
+  testCompile group: 'pl.pragmatists', name: 'JUnitParams', version: '1.1.1'
+}
+
+ext {
+  snippetsDir = file('build/generated-snippets')
+}
+
+test {
+  outputs.dir snippetsDir
+}
+
+asciidoctor {
+  inputs.dir snippetsDir
+  dependsOn test
+}
+
+task copyDocument(type: Copy) {
+  dependsOn asciidoctor
+
+  from file("${asciidoctor.outputDir}/html5/")
+  into file("out/production/resources/static/docs")
+}
+
+build {
+  dependsOn copyDocument
 }
