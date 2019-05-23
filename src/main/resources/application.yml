@@ -2,3 +2,30 @@ spring:
   jackson:
     deserialization:
       fail-on-unknown-properties: true
+
+  datasource:
+    username: root
+    password: 1234
+    url: jdbc:mysql://localhost:3306/mysql
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          lob:
+            non-contextual-creation: true
+
+
+logging:
+  level:
+    org:
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              basicBinder: TRACE

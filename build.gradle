@@ -25,7 +25,7 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-hateoas'
   implementation 'org.springframework.boot:spring-boot-starter-web'
   compileOnly 'org.projectlombok:lombok'
-  runtimeOnly 'com.h2database:h2'
+  testCompile 'com.h2database:h2'
   runtimeOnly 'mysql:mysql-connector-java'
   compile group: 'org.modelmapper', name: 'modelmapper', version: '2.3.1'
   annotationProcessor 'org.projectlombok:lombok'
