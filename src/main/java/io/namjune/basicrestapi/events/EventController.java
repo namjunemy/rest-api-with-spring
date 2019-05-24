@@ -1,5 +1,6 @@
 package io.namjune.basicrestapi.events;
 
+import io.namjune.basicrestapi.common.ErrorsResource;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.hateoas.Link;
@@ -30,12 +31,12 @@ public class EventController {
     public ResponseEntity createEvent(@RequestBody @Valid EventRequestDto eventRequestDto,
                                       Errors errors) {
         if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(errors);
+            return badRequest(errors);
         }
 
         eventValidator.validate(eventRequestDto, errors);
         if (errors.hasErrors()) {
-            return ResponseEntity.badRequest().body(errors);
+            return badRequest(errors);
         }
 
         Event event = modelMapper.map(eventRequestDto, Event.class);
@@ -53,5 +54,10 @@ public class EventController {
         eventResource.add(new Link("/docs/index.html#resources-events-create").withRel("profile"));
 
         return ResponseEntity.created(createdUri).body(eventResource);
+    }
+
+    private ResponseEntity badRequest(Errors errors) {
+        //에러 발생시 errors객체만 던지지 않고,API index가 포함된 리소스 객체 리턴
+        return ResponseEntity.badRequest().body(new ErrorsResource(errors));
     }
 }

@@ -189,7 +189,8 @@ public class EventControllerTests {
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .accept(MediaTypes.HAL_JSON)
                 .content(this.objectMapper.writeValueAsString(eventRequestDto)))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("_links.index").exists());
     }
 
     @Test
@@ -220,9 +221,10 @@ public class EventControllerTests {
             // 처리하기 위해 @JsonComponent ErrorSerializer ObjectMapper에 등록해서 변환 처리
             // 이렇게 처리하면 REST API를 사용하는 클라이언트에서 응답 본문만 보고 핸들링 가능
             .andDo(print())
-            .andExpect(jsonPath("$[0].objectName").exists())
-            .andExpect(jsonPath("$[0].defaultMessage").exists())
-            .andExpect(jsonPath("$[0].code").exists())
+            .andExpect(jsonPath("content[0].objectName").exists())
+            .andExpect(jsonPath("content[0].defaultMessage").exists())
+            .andExpect(jsonPath("content[0].code").exists())
+            .andExpect(jsonPath("_links.index").exists())
         ;
     }
 }
