@@ -73,7 +73,7 @@ public class EventController {
         Page<Event> page = this.eventRepository.findAll(pageable);
 
         // repository에서 받아온 page를 리소스 객체로 변경
-        PagedResources<Resource<Event>> pagedResources = assembler.toResource(page);
+        PagedResources<Resource<Event>> pagedResources = assembler.toResource(page, e -> new EventResource(e));
         return ResponseEntity.ok(pagedResources);
     }
 

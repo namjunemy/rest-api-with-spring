@@ -249,6 +249,7 @@ public class EventControllerTests {
             .andExpect(status().isOk())
             .andExpect(jsonPath("page").exists())
             .andExpect(jsonPath("_links").exists())
+            .andExpect(jsonPath("_embedded.eventList[0]._links.self").exists()) // 이벤트 당 self URL까지 리턴
         ;
 
         // Then
