@@ -248,8 +248,11 @@ public class EventControllerTests {
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("page").exists())
-            .andExpect(jsonPath("_links").exists())
-            .andExpect(jsonPath("_embedded.eventList[0]._links.self").exists()) // 이벤트 당 self URL까지 리턴
+            .andExpect(jsonPath("_links").exists()) //페이징 관련 링크 정보 검증
+            .andExpect(jsonPath("_embedded.eventList[0]._links.self").exists()) // 각 이벤트 self URL 리턴 검증
+            .andExpect(jsonPath("_links.self").exists())    //self 링크 검증
+            .andExpect(jsonPath("_links.profile").exists()) //profile 링크 검증
+            .andDo(document("query-events"))
         ;
 
         // Then

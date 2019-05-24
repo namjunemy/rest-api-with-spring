@@ -74,6 +74,7 @@ public class EventController {
 
         // repository에서 받아온 page를 리소스 객체로 변경
         PagedResources<Resource<Event>> pagedResources = assembler.toResource(page, e -> new EventResource(e));
+        pagedResources.add(new Link("/docs/index.html#resources-events-list").withRel("profile"));
         return ResponseEntity.ok(pagedResources);
     }
 
