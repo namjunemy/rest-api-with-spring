@@ -247,7 +247,8 @@ public class EventControllerTests {
                 .param("sort", "name,DESC"))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("pageable").exists())
+            .andExpect(jsonPath("page").exists())
+            .andExpect(jsonPath("_links").exists())
         ;
 
         // Then
