@@ -30,6 +30,8 @@ import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuild
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -252,7 +254,14 @@ public class EventControllerTests {
             .andExpect(jsonPath("_embedded.eventList[0]._links.self").exists()) // 각 이벤트 self URL 리턴 검증
             .andExpect(jsonPath("_links.self").exists())    //self 링크 검증
             .andExpect(jsonPath("_links.profile").exists()) //profile 링크 검증
-            .andDo(document("query-events"))
+            .andDo(document("query-events",
+                //요청 파라미터 문서화
+                requestParameters(
+                    parameterWithName("page").description("페이지. 첫 페이지 = 0"),
+                    parameterWithName("size").description("페이지당 컨텐츠 수"),
+                    parameterWithName("sort").description("정렬 값 / format => [대상 필드, 순서] / ex => [name,DESC]")
+                )
+            ))
         ;
 
         // Then
