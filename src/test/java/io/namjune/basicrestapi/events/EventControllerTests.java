@@ -3,7 +3,6 @@ package io.namjune.basicrestapi.events;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.namjune.basicrestapi.common.RestDocsConfiguration;
 import io.namjune.basicrestapi.common.TestDescription;
-import java.util.stream.IntStream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +18,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
+import java.util.stream.IntStream;
 
 import static org.springframework.restdocs.headers.HeaderDocumentation.headerWithName;
 import static org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders;
@@ -260,6 +260,15 @@ public class EventControllerTests {
                     parameterWithName("page").description("페이지. 첫 페이지 = 0"),
                     parameterWithName("size").description("페이지당 컨텐츠 수"),
                     parameterWithName("sort").description("정렬 값 / format => [대상 필드, 순서] / ex => [name,DESC]")
+                ),
+                //링크 문서화
+                links(
+                    linkWithRel("first").description("첫 페이지"),
+                    linkWithRel("prev").description("이전 페이지"),
+                    linkWithRel("self").description("현 페이지"),
+                    linkWithRel("next").description("다음 페이지"),
+                    linkWithRel("last").description("마지막 페이지"),
+                    linkWithRel("profile").description("link to profile an existing")
                 )
             ))
         ;
