@@ -246,7 +246,9 @@ public class EventControllerTests {
             get("/api/events")
                 .param("page", "1")
                 .param("size", "10")
-                .param("sort", "name,DESC"))
+                .param("sort", "name,DESC")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaTypes.HAL_JSON))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("page").exists())
@@ -261,14 +263,46 @@ public class EventControllerTests {
                     parameterWithName("size").description("페이지당 컨텐츠 수"),
                     parameterWithName("sort").description("정렬 값 / format => [대상 필드, 순서] / ex => [name,DESC]")
                 ),
+                //요청 헤더 문서화
+                requestHeaders(
+                    headerWithName(HttpHeaders.ACCEPT).description("Accept header"),
+                    headerWithName(HttpHeaders.CONTENT_TYPE).description("Content type")
+                ),
                 //링크 문서화
                 links(
                     linkWithRel("first").description("첫 페이지"),
                     linkWithRel("prev").description("이전 페이지"),
-                    linkWithRel("self").description("현 페이지"),
+                    linkWithRel("self").description("현재 페이지"),
                     linkWithRel("next").description("다음 페이지"),
                     linkWithRel("last").description("마지막 페이지"),
                     linkWithRel("profile").description("link to profile an existing")
+                ),
+                responseFields(
+                    fieldWithPath("_embedded.eventList[].id").description("Identifier of new event"),
+                    fieldWithPath("_embedded.eventList[].name").description("Name of new event"),
+                    fieldWithPath("_embedded.eventList[].description").description("Description of new event"),
+                    fieldWithPath("_embedded.eventList[].beginEnrollmentDateTime").description("date time of begin of new event"),
+                    fieldWithPath("_embedded.eventList[].closeEnrollmentDateTime").description("date time of close of new event"),
+                    fieldWithPath("_embedded.eventList[].beginEventDateTime").description("date time of begin of new event"),
+                    fieldWithPath("_embedded.eventList[].endEventDateTime").description("date time of end of new event"),
+                    fieldWithPath("_embedded.eventList[].location").description("Location of new event"),
+                    fieldWithPath("_embedded.eventList[].basePrice").description("Base Price of new event"),
+                    fieldWithPath("_embedded.eventList[].maxPrice").description("Max Price of new event"),
+                    fieldWithPath("_embedded.eventList[].limitOfEnrollment").description("Limit of enrollment"),
+                    fieldWithPath("_embedded.eventList[].free").description("Event is free or not"),
+                    fieldWithPath("_embedded.eventList[].offline").description("Event is offline meeting or not"),
+                    fieldWithPath("_embedded.eventList[].eventStatus").description("Event status"),
+                    fieldWithPath("_embedded.eventList[]._links.self.href").description("link to self"),
+                    fieldWithPath("_links.first.href").description("첫 페이지"),
+                    fieldWithPath("_links.prev.href").description("이전 페이지"),
+                    fieldWithPath("_links.self.href").description("현재 페이지"),
+                    fieldWithPath("_links.next.href").description("다음 페이지"),
+                    fieldWithPath("_links.last.href").description("마지막 페이지"),
+                    fieldWithPath("_links.profile.href").description("link to profile an existing"),
+                    fieldWithPath("page.size").description("요청한 페이징 단위"),
+                    fieldWithPath("page.totalElements").description("조회된 총 응답 객체 수"),
+                    fieldWithPath("page.totalPages").description("조회된 총 페이지 수"),
+                    fieldWithPath("page.number").description("요청한 페이지 넘버")
                 )
             ))
         ;
