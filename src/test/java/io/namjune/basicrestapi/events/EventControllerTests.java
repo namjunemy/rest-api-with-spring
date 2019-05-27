@@ -277,6 +277,12 @@ public class EventControllerTests {
                     linkWithRel("last").description("마지막 페이지"),
                     linkWithRel("profile").description("link to profile an existing")
                 ),
+                //응답 헤더 문서화
+                responseHeaders(
+                    headerWithName(HttpHeaders.LOCATION).description("Location header"),
+                    headerWithName(HttpHeaders.CONTENT_TYPE).description("Content type")
+                ),
+                //응답 필드 문서화
                 responseFields(
                     fieldWithPath("_embedded.eventList[].id").description("Identifier of new event"),
                     fieldWithPath("_embedded.eventList[].name").description("Name of new event"),
@@ -315,6 +321,17 @@ public class EventControllerTests {
         Event event = Event.builder()
             .name("event " + index)
             .description("test event")
+            .beginEnrollmentDateTime(LocalDateTime.of(2019, 5, 6, 17, 0, 0))
+            .closeEnrollmentDateTime(LocalDateTime.of(2019, 5, 9, 17, 0, 0))
+            .beginEventDateTime(LocalDateTime.of(2019, 5, 10, 17, 0, 0))
+            .endEventDateTime(LocalDateTime.of(2019, 5, 13, 17, 0, 0))
+            .basePrice(100)
+            .maxPrice(100)
+            .limitOfEnrollment(100)
+            .location("서울대입구")
+            .free(true)
+            .offline(false)
+            .eventStatus(EventStatus.PUBLISHED)
             .build();
 
         this.eventRepository.save(event);

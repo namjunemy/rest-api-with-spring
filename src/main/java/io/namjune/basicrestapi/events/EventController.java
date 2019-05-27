@@ -1,10 +1,6 @@
 package io.namjune.basicrestapi.events;
 
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-
 import io.namjune.basicrestapi.common.ErrorsResource;
-import java.net.URI;
-import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -22,6 +18,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import javax.validation.Valid;
+import java.net.URI;
+
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
 @Controller
 @RequestMapping(value = "/api/events", produces = MediaTypes.HAL_JSON_UTF8_VALUE)
@@ -72,10 +73,14 @@ public class EventController {
     public ResponseEntity queryEvents(Pageable pageable, PagedResourcesAssembler<Event> assembler) {
         Page<Event> page = this.eventRepository.findAll(pageable);
 
+        URI location = linkTo(EventController.class).toUri();
+
         // repository에서 받아온 page를 리소스 객체로 변경
         PagedResources<Resource<Event>> pagedResources = assembler.toResource(page, e -> new EventResource(e));
         pagedResources.add(new Link("/docs/index.html#resources-events-list").withRel("profile"));
-        return ResponseEntity.ok(pagedResources);
+        return ResponseEntity.ok()
+            .header("Location", String.valueOf(location))
+            .body(pagedResources);
     }
 
     private ResponseEntity badRequest(Errors errors) {
