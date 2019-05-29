@@ -29,8 +29,10 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.responseBody;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -146,8 +148,8 @@ public class EventControllerTests {
                     fieldWithPath("eventStatus").description("Event status"),
                     fieldWithPath("_links.self.href").description("link to self"),
                     fieldWithPath("_links.query-events.href").description("link to query events"),
-                    fieldWithPath("_links.update-event.href").description("link to update an existing"),
-                    fieldWithPath("_links.profile.href").description("link to profile an existing")
+                    fieldWithPath("_links.update-event.href").description("link to update event"),
+                    fieldWithPath("_links.profile.href").description("link to profile")
                 )
             ))
         ;
@@ -320,7 +322,41 @@ public class EventControllerTests {
             .andExpect(jsonPath("id").exists())
             .andExpect(jsonPath("_links.self").exists())
             .andExpect(jsonPath("_links.profile").exists())
-            .andDo(document("get-event"))
+            .andDo(document("get-event",
+                pathParameters(
+                    parameterWithName("id").description("이벤트 ID")
+                ),
+                responseHeaders(
+                    headerWithName(HttpHeaders.LOCATION).description("Location header"),
+                    headerWithName(HttpHeaders.CONTENT_TYPE).description("Content Type")
+                ),
+                responseFields(
+                    fieldWithPath("id").description("Identifier of new event"),
+                    fieldWithPath("name").description("Name of new event"),
+                    fieldWithPath("description").description("Description of new event"),
+                    fieldWithPath("beginEnrollmentDateTime").description("date time of begin of new event"),
+                    fieldWithPath("closeEnrollmentDateTime").description("date time of close of new event"),
+                    fieldWithPath("beginEventDateTime").description("date time of begin of new event"),
+                    fieldWithPath("endEventDateTime").description("date time of end of new event"),
+                    fieldWithPath("location").description("Location of new event"),
+                    fieldWithPath("basePrice").description("Base Price of new event"),
+                    fieldWithPath("maxPrice").description("Max Price of new event"),
+                    fieldWithPath("limitOfEnrollment").description("Limit of enrollment"),
+                    fieldWithPath("free").description("Event is free or not"),
+                    fieldWithPath("offline").description("Event is offline meeting or not"),
+                    fieldWithPath("eventStatus").description("Event status"),
+                    fieldWithPath("_links.self.href").description("link to self"),
+                    fieldWithPath("_links.query-events.href").description("link to query events"),
+                    fieldWithPath("_links.update-event.href").description("link to update event"),
+                    fieldWithPath("_links.profile.href").description("link to profile")
+                ),
+                links(
+                    linkWithRel("self").description("link to self"),
+                    linkWithRel("query-events").description("link to query events"),
+                    linkWithRel("update-event").description("link to update event"),
+                    linkWithRel("profile").description("link to profile")
+                )
+            ))
         ;
     }
 

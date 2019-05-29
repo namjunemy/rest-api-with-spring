@@ -118,7 +118,7 @@ operation::create-event[snippets='request-fields,curl-request,http-request,reque
 
 `Get` 요청을 사용해서 기존 이벤트 하나를 조회할 수 있다.
 
-operation::get-event[snippets='request-fields,curl-request,http-response,links']
+operation::get-event[snippets='path-parameters,curl-request,http-response,response-headers,response-fields,links']
 
 [[resources-events-update]]
 === 이벤트 수정

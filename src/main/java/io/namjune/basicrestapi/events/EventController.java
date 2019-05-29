@@ -1,7 +1,11 @@
 package io.namjune.basicrestapi.events;
 
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+
 import io.namjune.basicrestapi.common.ErrorsResource;
+import java.net.URI;
 import java.util.Optional;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -21,15 +25,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.validation.Valid;
-import java.net.URI;
-
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-
 @Controller
 @RequestMapping(value = "/api/events", produces = MediaTypes.HAL_JSON_UTF8_VALUE)
 @RequiredArgsConstructor
 public class EventController {
+
+    private static final ControllerLinkBuilder ROOT_LINK_BUILDER = linkTo(EventController.class);
 
     private final EventRepository eventRepository;
     private final ModelMapper modelMapper;
@@ -59,12 +60,12 @@ public class EventController {
         Event savedEvent = this.eventRepository.save(event);
 
         //HATEOAS link 추가
-        ControllerLinkBuilder selfLinkBuilder = linkTo(EventController.class).slash(savedEvent.getId());
+        ControllerLinkBuilder selfLinkBuilder = ROOT_LINK_BUILDER.slash(savedEvent.getId());
         URI createdUri = selfLinkBuilder.toUri();
 
         EventResource eventResource = new EventResource(event);
         //self link는 매번 API 마다 추가 해야하므로 EventResource에서 공통 처리
-        eventResource.add(linkTo(EventController.class).withRel("query-events"));
+        eventResource.add(ROOT_LINK_BUILDER.withRel("query-events"));
         eventResource.add(selfLinkBuilder.withRel("update-event"));
         eventResource.add(new Link("/docs/index.html#resources-events-create").withRel("profile"));
 
@@ -82,13 +83,11 @@ public class EventController {
     public ResponseEntity queryEvents(Pageable pageable, PagedResourcesAssembler<Event> assembler) {
         Page<Event> page = this.eventRepository.findAll(pageable);
 
-        URI location = linkTo(EventController.class).toUri();
-
         // repository에서 받아온 page를 리소스 객체로 변경
         PagedResources<Resource<Event>> pagedResources = assembler.toResource(page, e -> new EventResource(e));
         pagedResources.add(new Link("/docs/index.html#resources-events-list").withRel("profile"));
         return ResponseEntity.ok()
-            .header("Location", String.valueOf(location))
+            .header("Location", String.valueOf(ROOT_LINK_BUILDER.toUri()))
             .body(pagedResources);
     }
 
@@ -101,9 +100,13 @@ public class EventController {
 
         Event event = optionalEvent.get();
         EventResource eventResource = new EventResource(event);
+        eventResource.add(ROOT_LINK_BUILDER.withRel("query-events"));
+        eventResource.add(ROOT_LINK_BUILDER.slash(id).withRel("update-event"));
         eventResource.add(new Link("/docs/index.html#resources-events-get").withRel("profile"));
 
-        return ResponseEntity.ok(eventResource);
+        return ResponseEntity.ok()
+            .header("Location", String.valueOf(ROOT_LINK_BUILDER.toUri()))
+            .body(eventResource);
     }
 
     private ResponseEntity badRequest(Errors errors) {
