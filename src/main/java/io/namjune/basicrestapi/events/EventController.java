@@ -1,6 +1,7 @@
 package io.namjune.basicrestapi.events;
 
 import io.namjune.basicrestapi.common.ErrorsResource;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -15,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,6 +35,13 @@ public class EventController {
     private final ModelMapper modelMapper;
     private final EventValidator eventValidator;
 
+    /**
+     * 이벤트 생성
+     *
+     * @param eventRequestDto 요청 객체
+     * @param errors 에러 객체
+     * @return ResponseEntity
+     */
     @PostMapping
     public ResponseEntity createEvent(@RequestBody @Valid EventRequestDto eventRequestDto,
                                       Errors errors) {
@@ -63,11 +72,11 @@ public class EventController {
     }
 
     /**
-     * 이벤트 조회
+     * 이벤트 목록 조회
      *
-     * @param pageable
+     * @param pageable 페이징 요청 객체
      * @param assembler 페이지를 리소스 객체로 바꿔서 링크정보를 추가할 때 유용하게 사용되는 Spring-Data-JPA가 제공하는 객체
-     * @return
+     * @return ResponseEntity
      */
     @GetMapping
     public ResponseEntity queryEvents(Pageable pageable, PagedResourcesAssembler<Event> assembler) {
@@ -81,6 +90,20 @@ public class EventController {
         return ResponseEntity.ok()
             .header("Location", String.valueOf(location))
             .body(pagedResources);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity getEvent(@PathVariable Long id) {
+        Optional<Event> optionalEvent = this.eventRepository.findById(id);
+        if (!optionalEvent.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        Event event = optionalEvent.get();
+        EventResource eventResource = new EventResource(event);
+        eventResource.add(new Link("/docs/index.html#resources-events-get").withRel("profile"));
+
+        return ResponseEntity.ok(eventResource);
     }
 
     private ResponseEntity badRequest(Errors errors) {
