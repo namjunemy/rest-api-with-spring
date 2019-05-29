@@ -246,9 +246,7 @@ public class EventControllerTests {
             get("/api/events")
                 .param("page", "1")
                 .param("size", "10")
-                .param("sort", "name,DESC")
-                .contentType(MediaType.APPLICATION_JSON_UTF8)
-                .accept(MediaTypes.HAL_JSON))
+                .param("sort", "name,DESC"))
             .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("page").exists())
@@ -262,11 +260,6 @@ public class EventControllerTests {
                     parameterWithName("page").description("페이지. 첫 페이지 = 0"),
                     parameterWithName("size").description("페이지당 컨텐츠 수"),
                     parameterWithName("sort").description("정렬 값 / format => [대상 필드, 순서] / ex => [name,DESC]")
-                ),
-                //요청 헤더 문서화
-                requestHeaders(
-                    headerWithName(HttpHeaders.ACCEPT).description("Accept header"),
-                    headerWithName(HttpHeaders.CONTENT_TYPE).description("Content type")
                 ),
                 //링크 문서화
                 links(
