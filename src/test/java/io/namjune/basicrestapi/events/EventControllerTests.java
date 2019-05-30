@@ -5,6 +5,7 @@ import io.namjune.basicrestapi.common.RestDocsConfiguration;
 import io.namjune.basicrestapi.common.TestDescription;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -29,12 +30,12 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseBody;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -54,6 +55,9 @@ public class EventControllerTests {
 
     @Autowired
     ObjectMapper objectMapper;
+
+    @Autowired
+    ModelMapper modelMapper;
 
     @Autowired
     EventRepository eventRepository;
@@ -367,6 +371,45 @@ public class EventControllerTests {
         this.mockMvc.perform(get("/api/events/23456"))
             .andExpect(status().isNotFound());
     }
+
+    @Test
+    @TestDescription("이벤트를 정상적으로 수정")
+    public void updateEvent() throws Exception {
+        // Given
+        Event event = this.generatedEvent(200);
+
+        EventRequestDto eventRequestDto = this.modelMapper.map(event, EventRequestDto.class);
+        String eventName = "Updated Event";
+        eventRequestDto.setName(eventName);
+
+        // When & Then
+        this.mockMvc.perform(put("/api/events/{id}", event.getId())
+            .contentType(MediaType.APPLICATION_JSON_UTF8)
+            .content(this.objectMapper.writeValueAsString(eventRequestDto))
+        )
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("name").value(eventName))
+            .andExpect(jsonPath("_links.self").exists());
+    }
+
+    @Test
+    @TestDescription("입력값이 잘못된 경우 이벤트 수정 실패")
+    public void updateEvent_400() throws Exception {
+        // Given
+
+        Event event = this.generatedEvent(200);
+        String eventName = "Updated Event";
+        EventRequestDto eventRequestDto = new EventRequestDto();
+
+        // When & Then
+        this.mockMvc.perform(put("/api/events/{id}", event.getId()))
+            .andDo(print())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("name").value(eventName))
+            .andExpect(jsonPath("_links.self").exists());
+    }
+
 
     private Event generatedEvent(int index) {
         Event event = Event.builder()
