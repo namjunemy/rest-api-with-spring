@@ -394,20 +394,53 @@ public class EventControllerTests {
     }
 
     @Test
-    @TestDescription("입력값이 잘못된 경우 이벤트 수정 실패")
-    public void updateEvent_400() throws Exception {
+    @TestDescription("입력값이 비어있는 경우 이벤트 수정 실패")
+    public void updateEvent_400_Empty() throws Exception {
         // Given
-
         Event event = this.generatedEvent(200);
-        String eventName = "Updated Event";
         EventRequestDto eventRequestDto = new EventRequestDto();
 
         // When & Then
-        this.mockMvc.perform(put("/api/events/{id}", event.getId()))
+        this.mockMvc.perform(put("/api/events/{id}", event.getId())
+            .contentType(MediaType.APPLICATION_JSON_UTF8)
+            .content(this.objectMapper.writeValueAsString(eventRequestDto))
+        )
             .andDo(print())
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("name").value(eventName))
-            .andExpect(jsonPath("_links.self").exists());
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @TestDescription("입력값이 잘못된 경우 이벤트 수정 실패 - Validation Error")
+    public void updateEvent_400_Wrong() throws Exception {
+        // Given
+        Event event = this.generatedEvent(200);
+        EventRequestDto eventRequestDto = this.modelMapper.map(event, EventRequestDto.class);
+        eventRequestDto.setBasePrice(20000);
+        eventRequestDto.setMaxPrice(1000);
+
+        // When & Then
+        this.mockMvc.perform(put("/api/events/{id}", event.getId())
+            .contentType(MediaType.APPLICATION_JSON_UTF8)
+            .content(this.objectMapper.writeValueAsString(eventRequestDto))
+        )
+            .andDo(print())
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @TestDescription("존재하지 않는 이벤트 수정 실패")
+    public void updateEvent_404() throws Exception {
+        // Given
+        Event event = this.generatedEvent(200);
+        EventRequestDto eventRequestDto = this.modelMapper.map(event, EventRequestDto.class);
+
+        // When & Then
+        this.mockMvc.perform(put("/api/events/9308")
+            .contentType(MediaType.APPLICATION_JSON_UTF8)
+            .content(this.objectMapper.writeValueAsString(eventRequestDto))
+        )
+            .andDo(print())
+            .andExpect(status().isNotFound());
     }
 
 
@@ -423,9 +456,9 @@ public class EventControllerTests {
             .maxPrice(100)
             .limitOfEnrollment(100)
             .location("서울대입구")
-            .free(true)
-            .offline(false)
-            .eventStatus(EventStatus.PUBLISHED)
+            .free(false)
+            .offline(true)
+            .eventStatus(EventStatus.DRAFT)
             .build();
 
         return this.eventRepository.save(event);

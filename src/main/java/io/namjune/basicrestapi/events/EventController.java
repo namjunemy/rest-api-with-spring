@@ -22,6 +22,7 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -91,6 +92,12 @@ public class EventController {
             .body(pagedResources);
     }
 
+    /**
+     * 이벤트 조회
+     *
+     * @param id 이벤트 id
+     * @return ResponseEntity
+     */
     @GetMapping("/{id}")
     public ResponseEntity getEvent(@PathVariable Long id) {
         Optional<Event> optionalEvent = this.eventRepository.findById(id);
@@ -107,6 +114,37 @@ public class EventController {
         return ResponseEntity.ok()
             .header("Location", String.valueOf(ROOT_LINK_BUILDER.toUri()))
             .body(eventResource);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity updateEvent(@PathVariable Long id,
+                                      @RequestBody @Valid EventRequestDto eventRequestDto,
+                                      Errors errors) {
+        Optional<Event> optionalEvent = this.eventRepository.findById(id);
+        if (!optionalEvent.isPresent()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (errors.hasErrors()) {
+            return badRequest(errors);
+        }
+
+        this.eventValidator.validate(eventRequestDto, errors);
+        if (errors.hasErrors()) {
+            return badRequest(errors);
+        }
+
+        // @Transactional 범위에 들어있지 않기 때문에, 명시적으로 save 호출
+        Event existingEvent = optionalEvent.get();
+        this.modelMapper.map(eventRequestDto, existingEvent);
+
+        Event updatedEvent = this.eventRepository.save(existingEvent);
+        EventResource eventResource = new EventResource(updatedEvent);
+        eventResource.add(ROOT_LINK_BUILDER.withRel("query-events"));
+        eventResource.add(ROOT_LINK_BUILDER.slash(id).withRel("get-event"));
+        eventResource.add(new Link("/docs/index.html#resources-events-update").withRel("profile"));
+
+        return ResponseEntity.ok(eventResource);
     }
 
     private ResponseEntity badRequest(Errors errors) {
