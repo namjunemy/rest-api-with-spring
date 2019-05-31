@@ -112,7 +112,7 @@ public class EventController {
         eventResource.add(new Link("/docs/index.html#resources-events-get").withRel("profile"));
 
         return ResponseEntity.ok()
-            .header("Location", String.valueOf(ROOT_LINK_BUILDER.toUri()))
+            .header("Location", String.valueOf(ROOT_LINK_BUILDER.slash(id).toUri()))
             .body(eventResource);
     }
 
@@ -144,7 +144,9 @@ public class EventController {
         eventResource.add(ROOT_LINK_BUILDER.slash(id).withRel("get-event"));
         eventResource.add(new Link("/docs/index.html#resources-events-update").withRel("profile"));
 
-        return ResponseEntity.ok(eventResource);
+        return ResponseEntity.ok()
+            .header("Location", String.valueOf(ROOT_LINK_BUILDER.slash(id).toUri()))
+            .body(eventResource);
     }
 
     private ResponseEntity badRequest(Errors errors) {

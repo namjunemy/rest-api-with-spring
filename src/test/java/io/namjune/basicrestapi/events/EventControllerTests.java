@@ -28,14 +28,14 @@ import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.li
 import static org.springframework.restdocs.hypermedia.HypermediaDocumentation.links;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.put;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.requestFields;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
 import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -372,6 +372,13 @@ public class EventControllerTests {
             .andExpect(status().isNotFound());
     }
 
+    /**
+     * static import 시 주의사항
+     *
+     * Documentation시 pathParameters를 사용하는 경우 get, put 등을
+     * MockMvcBuilder.get() 보다 RestDocumentationRequestBuilders.get() 을 이용하는 것을 권장한다. 에러난다.
+     *
+     */
     @Test
     @TestDescription("이벤트를 정상적으로 수정")
     public void updateEvent() throws Exception {
@@ -385,12 +392,67 @@ public class EventControllerTests {
         // When & Then
         this.mockMvc.perform(put("/api/events/{id}", event.getId())
             .contentType(MediaType.APPLICATION_JSON_UTF8)
+            .accept(MediaTypes.HAL_JSON)
             .content(this.objectMapper.writeValueAsString(eventRequestDto))
         )
             .andDo(print())
             .andExpect(status().isOk())
+            .andExpect(jsonPath("id").exists())
             .andExpect(jsonPath("name").value(eventName))
-            .andExpect(jsonPath("_links.self").exists());
+            .andExpect(header().exists(HttpHeaders.LOCATION))
+            .andExpect(header().string(HttpHeaders.CONTENT_TYPE, MediaTypes.HAL_JSON_UTF8_VALUE))
+            .andDo(document("update-event",
+                pathParameters(
+                    parameterWithName("id").description("이벤트 ID")
+                ),
+                requestHeaders(
+                    headerWithName(HttpHeaders.ACCEPT).description("Accept header"),
+                    headerWithName(HttpHeaders.CONTENT_TYPE).description("Content type")
+                ),
+                requestFields(
+                    fieldWithPath("name").description("Name of new event"),
+                    fieldWithPath("description").description("Description of new event"),
+                    fieldWithPath("beginEnrollmentDateTime").description("date time of begin of new event"),
+                    fieldWithPath("closeEnrollmentDateTime").description("date time of close of new event"),
+                    fieldWithPath("beginEventDateTime").description("date time of begin of new event"),
+                    fieldWithPath("endEventDateTime").description("date time of end of new event"),
+                    fieldWithPath("location").description("Location of new event"),
+                    fieldWithPath("basePrice").description("Base Price of new event"),
+                    fieldWithPath("maxPrice").description("Max Price of new event"),
+                    fieldWithPath("limitOfEnrollment").description("Limit of enrollment")
+                ),
+                responseHeaders(
+                    headerWithName(HttpHeaders.LOCATION).description("Location header"),
+                    headerWithName(HttpHeaders.CONTENT_TYPE).description("Content type")
+                ),
+                responseFields(
+                    fieldWithPath("id").description("Identifier of new event"),
+                    fieldWithPath("name").description("Name of new event"),
+                    fieldWithPath("description").description("Description of new event"),
+                    fieldWithPath("beginEnrollmentDateTime").description("date time of begin of new event"),
+                    fieldWithPath("closeEnrollmentDateTime").description("date time of close of new event"),
+                    fieldWithPath("beginEventDateTime").description("date time of begin of new event"),
+                    fieldWithPath("endEventDateTime").description("date time of end of new event"),
+                    fieldWithPath("location").description("Location of new event"),
+                    fieldWithPath("basePrice").description("Base Price of new event"),
+                    fieldWithPath("maxPrice").description("Max Price of new event"),
+                    fieldWithPath("limitOfEnrollment").description("Limit of enrollment"),
+                    fieldWithPath("free").description("Event is free or not"),
+                    fieldWithPath("offline").description("Event is offline meeting or not"),
+                    fieldWithPath("eventStatus").description("Event status"),
+                    fieldWithPath("_links.self.href").description("link to self"),
+                    fieldWithPath("_links.query-events.href").description("link to query events"),
+                    fieldWithPath("_links.get-event.href").description("link to update event"),
+                    fieldWithPath("_links.profile.href").description("link to profile")
+                ),
+                links(
+                    linkWithRel("self").description("link to self"),
+                    linkWithRel("query-events").description("link to query events"),
+                    linkWithRel("get-event").description("link to get event"),
+                    linkWithRel("profile").description("link to profile")
+                )
+            ))
+        ;
     }
 
     @Test
