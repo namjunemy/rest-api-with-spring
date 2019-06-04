@@ -26,7 +26,7 @@ public class Account {
 
     @Id
     @GeneratedValue
-    private Integer id;
+    private Long id;
 
     private String email;
 
