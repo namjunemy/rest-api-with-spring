@@ -1,18 +1,19 @@
 package io.namjune.basicrestapi.events;
 
+import io.namjune.basicrestapi.accounts.Account;
+import java.time.LocalDateTime;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import java.time.LocalDateTime;
 
 @Builder
 @AllArgsConstructor
@@ -40,6 +41,9 @@ public class Event {
     private boolean free;
     @Enumerated(EnumType.STRING)
     private EventStatus eventStatus = EventStatus.DRAFT;
+
+    @ManyToOne
+    private Account manager;
 
     public void updateDynamicField() {
         this.updateFree();
