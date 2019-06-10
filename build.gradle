@@ -25,6 +25,7 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-hateoas'
   implementation 'org.springframework.boot:spring-boot-starter-web'
   implementation 'org.springframework.boot:spring-boot-starter-security'
+  implementation 'org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.1.5.RELEASE'
   compileOnly 'org.projectlombok:lombok'
   testCompile 'com.h2database:h2'
   runtimeOnly 'mysql:mysql-connector-java'
