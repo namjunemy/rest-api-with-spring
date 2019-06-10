@@ -5,8 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -84,4 +86,21 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //            .mvcMatchers("/docs/index.html").anonymous()
 //            .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).anonymous();
 //    }
+
+    /**
+     * 얼마든지 커스텀한 시큐리티 설정을 가져갈 수 있다.
+     *
+     * @param http
+     * @throws Exception
+     */
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.anonymous()    // 모든 익명 사용자를 허용하고
+            .and()
+            .formLogin()    // 기본 제공하는 로그인 폼을 사용하고(경로 등 상세설정도 가능)
+            .and()
+            .authorizeRequests()    // 허용할 endPoint 는
+            .mvcMatchers(HttpMethod.GET, "/api/**").authenticated() // 해당 url은 모두 허용하고(테스트는 authenticated로)
+            .anyRequest().authenticated();  // 그 외는 인증이 필요하다.
+    }
 }

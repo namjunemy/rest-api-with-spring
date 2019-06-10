@@ -31,4 +31,3 @@ logging:
               basicBinder: TRACE
       springframework:
         security: DEBUG
-        

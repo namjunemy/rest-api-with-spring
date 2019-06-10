@@ -1,9 +1,5 @@
 package io.namjune.basicrestapi.accounts;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.Arrays;
-import java.util.HashSet;
 import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
@@ -14,8 +10,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.Arrays;
+import java.util.HashSet;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -29,7 +31,7 @@ public class AccountServiceTest {
     AccountService accountService;
 
     @Autowired
-    AccountRepository accountRepository;
+    PasswordEncoder passwordEncoder;
 
     @Test
     public void findByUsername() {
@@ -42,14 +44,16 @@ public class AccountServiceTest {
             .roles(new HashSet<>(Arrays.asList(AccountRole.ADMIN, AccountRole.USER)))
             .build();
 
-        this.accountRepository.save(account);
+        // 저장할 때 Password 코딩 후 저장
+        this.accountService.savePasswordEncodedAccount(account);
 
         // When
         UserDetailsService userDetailsService = this.accountService;
         UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
         // Then
-        assertThat(userDetails.getPassword()).isEqualTo(password);
+        // 입력한 패스워드가 인코딩 된 것과 일치 하는가
+        assertThat(this.passwordEncoder.matches(password, userDetails.getPassword())).isTrue();
     }
 
     /*
