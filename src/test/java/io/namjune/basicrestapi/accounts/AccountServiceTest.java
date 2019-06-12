@@ -1,5 +1,9 @@
 package io.namjune.basicrestapi.accounts;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.hamcrest.Matchers;
 import org.junit.Rule;
 import org.junit.Test;
@@ -13,11 +17,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.util.Arrays;
-import java.util.HashSet;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -37,11 +36,11 @@ public class AccountServiceTest {
     public void findByUsername() {
         // Given
         String password = "1234";
-        String email = "namjunemy@gmail.com";
+        String email = "test@gmail.com";
         Account account = Account.builder()
             .email(email)
             .password(password)
-            .roles(new HashSet<>(Arrays.asList(AccountRole.ADMIN, AccountRole.USER)))
+            .roles(Stream.of(AccountRole.ADMIN, AccountRole.USER).collect(Collectors.toSet()))
             .build();
 
         // 저장할 때 Password 코딩 후 저장

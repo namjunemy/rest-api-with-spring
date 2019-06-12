@@ -3,6 +3,8 @@ package io.namjune.basicrestapi.config;
 import io.namjune.basicrestapi.accounts.Account;
 import io.namjune.basicrestapi.accounts.AccountRole;
 import io.namjune.basicrestapi.accounts.AccountService;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -11,9 +13,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.Arrays;
-import java.util.HashSet;
 
 @Configuration
 public class AppConfig {
@@ -46,7 +45,7 @@ public class AppConfig {
                 Account account = Account.builder()
                     .email("namjunemy@gmail.com")
                     .password("1234")
-                    .roles(new HashSet<>(Arrays.asList(AccountRole.ADMIN, AccountRole.USER)))
+                    .roles(Stream.of(AccountRole.ADMIN, AccountRole.USER).collect(Collectors.toSet()))
                     .build();
                 accountService.savePasswordEncodedAccount(account);
             }

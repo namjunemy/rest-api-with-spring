@@ -32,6 +32,7 @@ dependencies {
   compile group: 'org.modelmapper', name: 'modelmapper', version: '2.3.1'
   annotationProcessor 'org.projectlombok:lombok'
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
+  testImplementation 'org.springframework.security:spring-security-test:5.1.5.RELEASE'
   testCompile 'org.springframework.restdocs:spring-restdocs-mockmvc:2.0.3.RELEASE'
   asciidoctor 'org.springframework.restdocs:spring-restdocs-asciidoctor:2.0.3.RELEASE'
   testCompile group: 'pl.pragmatists', name: 'JUnitParams', version: '1.1.1'
