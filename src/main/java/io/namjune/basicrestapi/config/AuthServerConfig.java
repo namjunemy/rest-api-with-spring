@@ -27,6 +27,7 @@ public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
     private final AuthenticationManager authenticationManager;
     private final AccountService accountService;
     private final TokenStore tokenStore;
+    private final AppProperties appProperties;
 
     /**
      * 인증 서버로 넘어오는 client의 secret도 encoding해서 관리 하도록 설정(유저의 계정에 있는 password와 마찬가지로)
@@ -43,10 +44,10 @@ public class AuthServerConfig extends AuthorizationServerConfigurerAdapter {
 
         // 현재는 인메모리로 테스트
         clients.inMemory()
-            .withClient("myApp")
+            .withClient(appProperties.getClientId())
             .authorizedGrantTypes("password", "refresh_token")
             .scopes("read", "write")
-            .secret(this.passwordEncoder.encode("pass"))
+            .secret(this.passwordEncoder.encode(appProperties.getClientSecret()))
             .accessTokenValiditySeconds(10 * 60)
             .refreshTokenValiditySeconds(6 * 10 * 60);
     }

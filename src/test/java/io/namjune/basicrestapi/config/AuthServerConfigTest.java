@@ -21,6 +21,9 @@ public class AuthServerConfigTest extends BaseControllerTest {
     @Autowired
     AccountService accountService;
 
+    @Autowired
+    AppProperties appProperties;
+
     /**
      * oauth2 가 지원하는 6가지 인증방식 중에 우리는 Password, Refresh Token 두 가지 방식을 지원할 것이다.
      * 최초에 토큰을 발급 받을 때에는 Password 타입으로 발급 받는다.
@@ -34,25 +37,14 @@ public class AuthServerConfigTest extends BaseControllerTest {
     @TestDescription("인증 토큰을 발급 받는 테스트")
     public void getAuthToken() throws Exception {
         // Given
-        String username = "test@gmail.com";
-        String password = "1234";
-
-        Account account = Account.builder()
-            .email(username)
-            .password(password)
-            .roles(Stream.of(AccountRole.ADMIN, AccountRole.USER).collect(Collectors.toSet()))
-            .build();
-        this.accountService.savePasswordEncodedAccount(account);
-
-        String clientId = "myApp";
-        String clientSecret = "pass";
+        // Application Runner 에서 유저를 이미 하나 저장하므로 별도의 저장로직 필요없음
 
         // 인증서버가 등록이 되면 기본적으로 '/oauth/token' 요청을 처리할 수 있는 핸들러가 등록된다.
         this.mockMvc.perform(
             post("/oauth/token")
-                .with(httpBasic(clientId, clientSecret))    //HTTP basic 인증 헤더
-                .param("username", username)
-                .param("password", password)
+                .with(httpBasic(appProperties.getClientId(), appProperties.getClientSecret()))    //HTTP basic 인증 헤더
+                .param("username", appProperties.getUserUsername())
+                .param("password", appProperties.getUserPassword())
                 .param("grant_type", "password")
         )
             .andDo(print())
