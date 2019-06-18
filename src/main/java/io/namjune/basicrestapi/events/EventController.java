@@ -2,6 +2,7 @@ package io.namjune.basicrestapi.events;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 
+import io.namjune.basicrestapi.accounts.AccountAdapter;
 import io.namjune.basicrestapi.common.ErrorsResource;
 import java.net.URI;
 import java.util.Optional;
@@ -17,6 +18,10 @@ import org.springframework.hateoas.PagedResources;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -81,12 +86,25 @@ public class EventController {
      * @return ResponseEntity
      */
     @GetMapping
-    public ResponseEntity queryEvents(Pageable pageable, PagedResourcesAssembler<Event> assembler) {
+    public ResponseEntity queryEvents(Pageable pageable,PagedResourcesAssembler<Event> assembler,
+        @AuthenticationPrincipal AccountAdapter currentUser) {
+        // 테스트코드를 디버거로 잡아서 Authentication 안에 있는 스프링 시큐리티가 제공하는 User(스프링 시큐리티의 유저)
+        // 정보를 통해서 username을 접근할 수 도 있다. 우리의 목표는 사용자를 우리의 Entity인 Account로 받는 것이다.
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        User principal = (User) authentication.getPrincipal();
+
         Page<Event> page = this.eventRepository.findAll(pageable);
 
         // repository에서 받아온 page를 리소스 객체로 변경
         PagedResources<Resource<Event>> pagedResources = assembler.toResource(page, e -> new EventResource(e));
         pagedResources.add(new Link("/docs/index.html#resources-events-list").withRel("profile"));
+
+        // 하지만 @AuthenticationPrincipal 를 사용하면 스프링 시큐리티의 User를 바로 받을 수 있다.
+        // 스프링 시큐리티의 유저를 받아서 로그인 사용자일 경우 이벤트 생성 링크를 넣어준다.
+        if (currentUser != null) {
+            pagedResources.add(linkTo(EventController.class).withRel("create-event"));
+        }
+
         return ResponseEntity.ok()
             .header("Location", String.valueOf(ROOT_LINK_BUILDER.toUri()))
             .body(pagedResources);
@@ -116,6 +134,13 @@ public class EventController {
             .body(eventResource);
     }
 
+    /**
+     * 이벤트 수정
+     *
+     * @param id 이벤트 id
+     * @param eventRequestDto 수정 요청 정보
+     * @return ResponseEntity
+     */
     @PutMapping("/{id}")
     public ResponseEntity updateEvent(@PathVariable Long id,
                                       @RequestBody @Valid EventRequestDto eventRequestDto,
