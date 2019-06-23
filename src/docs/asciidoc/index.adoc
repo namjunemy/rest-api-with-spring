@@ -92,7 +92,7 @@ include::{snippets}/errors/http-response.adoc[]
 
 `GET` 요청을 사용하여 인덱스에 접근할 수 있다.
 
-operation::index[snippets='response-body,http-response,links']
+operation::index[snippets='http-response,links']
 
 [[resources-events]]
 == 이벤트
