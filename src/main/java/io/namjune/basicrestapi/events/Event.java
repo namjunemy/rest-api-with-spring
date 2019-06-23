@@ -1,5 +1,6 @@
 package io.namjune.basicrestapi.events;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.namjune.basicrestapi.accounts.Account;
 import java.time.LocalDateTime;
 import javax.persistence.Entity;
@@ -8,6 +9,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+
+import io.namjune.basicrestapi.accounts.AccountSerializer;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -43,6 +46,7 @@ public class Event {
     private EventStatus eventStatus = EventStatus.DRAFT;
 
     @ManyToOne
+    @JsonSerialize(using = AccountSerializer.class)
     private Account manager;
 
     public void updateDynamicField() {
