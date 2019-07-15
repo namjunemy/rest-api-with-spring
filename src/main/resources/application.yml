@@ -39,3 +39,8 @@ myApp:
   clientId: myApp
   clientSecret: pass
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
